@@ -19,10 +19,10 @@ https://www.rstudio.com/products/rstudio/download/
 #### Download/install packages
 
 ``` r
-list_of_packages = c("data.table", "reshape2", "RColorBrewer", "zoo", "ggplot2", 
+list_of_packages <- c("data.table", "reshape2", "RColorBrewer", "zoo", "ggplot2", 
 "scales","RNCEP", "gimms", "ncdf4", "parallel", "longmemo", "HKprocess")
 
-new_packages = list_of_packages [!(list_of_packages  %in% installed.packages()[,"Package"])]
+new_packages <- list_of_packages [!(list_of_packages  %in% installed.packages()[,"Package"])]
 if(length(new_packages)) install.packages(new_packages)
 lapply(list_of_packages, require, character.only = TRUE) 
 ```
@@ -37,15 +37,6 @@ dir.create("./source")
 dir.create("./bin")
 dir.create("./results")
 
-folder_names <- c("NCEP_v2", #Hydrometeorological Variables
-                 "GIMMS_3g") #Vegetation phenology indices
-
-ncep_filename <- paste("./data/",folder_names[1],"/meteo_sample.Rds", sep = "")
-
-for(i in 1:length(folder_names)){
-  dir.create(paste("./data/", folder_names[i], sep = ""))
-}
-
 download.file("https://raw.githubusercontent.com/imarkonis/Workshops/master/2017StochasticMethods_Prague/scalegram_w.R", 
               "./source/scalegram_w.R", mode = "wb")
 source("./source/scalegram_w.R")
@@ -55,7 +46,7 @@ source("./source/scalegram_w.R")
 
 ``` r
 ncep_raw <- list() #Use list in case time series of different lengths are combined
-site_coords = data.frame(lat = 45.5, lon = 43.5)  # C'est Montreal!
+site_coords = data.frame(lat = 45.5, lon = 286.5) # C'est Montreal
 coordinates(site_coords) <- c("lon", "lat")
 start_day <- 1
 end_day <- 31
@@ -80,8 +71,6 @@ Variables in reference to a T62 gaussian grid
 
 air.2m is Air Temperature (At 2 meters) deg K
 
-dswrf.sfc is Downward solar radiation flux (At Surface) W/m^2
-
 prate.sfc is Precipitation rate (At Surface) Kg/m^2/s
 
 **NCAP 2 Reanalysis Data**
@@ -91,7 +80,7 @@ More info about data: <https://www.esrl.noaa.gov/psd/data/gridded/data.ncep.rean
 *ncep\_dload* function returns a three dimensional array of weather data. The three dimensions are latitude, longitude, and datetime reflected in the dimnames of the array. Datetimes are always expressed in UTC with the format "%Y\_%m\_%d\_%H". Optionally, the units of the variable being queried are printed upon completion.
 
 ``` r
-variables <- c("air.2m", "prate.sfc", "dswrf.sfc")
+variables <- c("air.2m", "prate.sfc")
 n_variables <- length(variables)
 
 for (j in 1:n_variables){# loop through variables
@@ -110,62 +99,40 @@ for (j in 1:n_variables){# loop through variables
   ncep_raw[[j]] <- apply(ncep_dload, 3, mean, na.rm=T)
 } # end loop through variables
 ```
-
 ``` r
-names(ncep_raw) <- c("temperature", "precipitation", "radiation")
-ncep_raw <- data.table(melt(ncep_raw))
-colnames(ncep_raw)[2] <- "variable"
+names(ncep_raw) <- c("temperature", "precipitation")
+ncep_raw_long <- data.table(melt(ncep_raw))
+colnames(ncep_raw_long)[2] <- "variable"
 
-ncep_raw[variable == "temperature", value := value - 273]    #Change units from K to C
-ncep_raw[variable == "precipitation", value := value * 3600 * 6]    #Change units from Kg/m^2/s to mm/6h
+ncep_raw_long[variable == "temperature", value := value - 273]    #Change units from K to C
+ncep_raw_long[variable == "precipitation", value := value * 3600 * 6]    #Change units from Kg/m^2/s to mm/6h
 
-ncep_raw[, time := rep(time_as_date, n_variables)]
-setcolorder(ncep_raw, c("variable", "time", "value"))
+ncep_raw_long[, time := rep(time_as_date, n_variables)]
+setcolorder(ncep_raw_long, c("variable", "time", "value"))
+
+saveRDS(ncep_raw_long, "./data/montreal_T_P_ncep.rds")
 ```
-
-------------------------------------------------------------------------
-
-#### Phenology Data
-
-More info about GIMMS dataset and Normalized Difference Vegetation Index can be found at <https://nex.nasa.gov/nex/projects/1349/>
-
-``` r
-gimms_dir <- paste("./data/", folder_names[2], sep = "")
-setwd(gimms_dir)
-gimms_files <- downloadGimms(start_date, end_date)
-```
-
-``` r
-gimms_raster <- rasterizeGimms(gimms_files)
-ndvi3g <- t(extract(gimms_raster, site_coords))
-
-plot(gimms_raster[[1]])
-points(site_coords, pch = 3)
-
-setwd(work_dir)
-```
-
 ------------------------------------------------------------------------
 
 #### Scalegram: a diagnostic tool for cross-scale analysis
 
 ``` r
-ncep_raw = readRDS(ncep_filename)
+montreal_T_P <- readRDS("./data/montreal_T_P_ncep.rds")
 ```
 
 Aggregate 6-h time series to monthly time step and estimate empirical scalograms
 
 ``` r
-ncep_raw[, month := month(time)]
-ncep_raw[, year := year(time)]
-ncep_raw_monthly <- ncep_raw[variable != "precipitation" , mean(value), list(month, year, variable)]  
-ncep_raw_monthly <- rbind(ncep_raw_monthly, ncep_raw[variable == "precipitation", sum(value), list(month, year,variable)])
+montreal_T_P[, month := month(time)]
+montreal_T_P[, year := year(time)]
+ncep_raw_monthly <- montreal_T_P[variable != "precipitation" , mean(value), list(month, year, variable)]  
+ncep_raw_monthly <- rbind(ncep_raw_monthly, montreal_T_P[variable == "precipitation", sum(value), list(month, year,variable)])
 names(ncep_raw_monthly)[4] = "value"
 
-#ncep_raw_matrix <- dcast(data = ncep_raw, time~variable, value.var = "value")   #Transformation for parallel computing
+#ncep_raw_matrix <- dcast(data = montreal_T_P, time~variable, value.var = "value")   #Transformation for parallel computing
 #empirical_scalegrams <- scalegram_parallel(ncep_raw_matrix[-1])
 
-empirical_scalegrams_meteo_6h <- data.table(ncep_raw[, scalegram_main(value), variable])
+empirical_scalegrams_meteo_6h <- data.table(montreal_T_P[, scalegram_main(value), variable])
 empirical_scalegrams_meteo_mon <- data.table(ncep_raw_monthly[, scalegram_main(value), variable])
 ```
 
@@ -216,14 +183,19 @@ plot_scalegram(combo_p_plot)
 
 **Comparison between NCAP and station data**
 
-Station data correspond to daily meteorological data from Praha that are downloaded from: <http://climexp.knmi.nl/start.cgi?id=someone@somewhere>
+Station data correspond to daily meteorological data for MONTREAL/PIERRE_ELLIOTT_TRUDEA that are downloaded from: <http://climexp.knmi.nl/start.cgi?id=someone@somewhere>
 
 ``` r
-praha_station_prec <- data.table(read.csv("./data/praha_station_P.csv", header = T))
-empirical_scalegram_praha_station <- scalegram_main(praha_station_prec$value)
+download.file("http://climexp.knmi.nl/data/pgdcnCA007025250.dat", "./data/montreal_P_ghcn.dat")
+montreal_station_prec <- data.table(read.csv("./data/montreal_P_ghcn.dat", sep = "", skip = 21, header = F))
+colnames(montreal_station_prec) <- c("year", "month", "day", "value")
+montreal_station_prec$variable <- "Daily precipitation"
+montreal_station_prec[, time := as.Date(paste0(year, "/", month, "/", day))]
 
-empirical_scalegram_praha_station_rescaled <- rescale_variance(
-  emp_scalegram_coarse = empirical_scalegram_praha_station, 
+empirical_scalegram_montreal_station <- scalegram_main(montreal_station_prec$value)
+
+empirical_scalegram_montreal_station_rescaled <- rescale_variance(
+  emp_scalegram_coarse = empirical_scalegram_montreal_station, 
   emp_scalegram_fine = empirical_scalegrams_meteo_6h[variable == "precipitation"],
   scale_ratio = 4)
 ```
@@ -231,7 +203,7 @@ empirical_scalegram_praha_station_rescaled <- rescale_variance(
 ``` r
 dummy_1 <- empirical_scalegrams_meteo_6h[variable == "precipitation"]
 dummy_1$variable <- "NCAP"
-dummy_2 <- empirical_scalegram_praha_station_rescaled
+dummy_2 <- empirical_scalegram_montreal_station_rescaled
 dummy_2$variable <- "Station"
 compare_scalegrams <- rbind(dummy_1, dummy_2) 
 
@@ -240,17 +212,24 @@ plot_scalegram(compare_scalegrams)
 
 **Comparison between NCAP and EOBS data**
 
-E-OBS data were also downloaded from: <http://climexp.knmi.nl/start.cgi?id=someone@somewhere>
+CPC data were also downloaded from: <http://climexp.knmi.nl/start.cgi?id=someone@somewhere>
 
-More info about E-OBS dataset can be found at: <http://www.ecad.eu/download/ensembles/download.php>
+More info about CPC dataset can be found at: <https://www.esrl.noaa.gov/psd/data/gridded/data.unified.daily.conus.html>
 
 ``` r
-praha_eobs_prec <- read.csv("./data/praha_eobs.csv", header = T)
+montreal_eobs_prec <- read.csv("./data/montreal_eobs.csv", header = T)
 
-empirical_scalegram_praha_eobs <- scalegram_main(praha_eobs_prec$value)
+download.file("http://climexp.knmi.nl/data/pgdcnCA007025250.dat", "./data/montreal_P_ghcn.dat")
+montreal_station_prec <- data.table(read.csv("./data/montreal_P_ghcn.dat", sep = "", skip = 21, header = F))
+colnames(montreal_station_prec) <- c("year", "month", "day", "value")
+montreal_station_prec$variable <- "Daily precipitation"
+montreal_station_prec[, time := as.Date(paste0(year, "/", month, "/", day))]
 
-empirical_scalegram_praha_eobs_rescaled <- rescale_variance(
-  emp_scalegram_coarse = empirical_scalegram_praha_eobs, 
+
+empirical_scalegram_montreal_eobs <- scalegram_main(montreal_eobs_prec$value)
+
+empirical_scalegram_montreal_eobs_rescaled <- rescale_variance(
+  emp_scalegram_coarse = empirical_scalegram_montreal_eobs, 
   emp_scalegram_fine = empirical_scalegrams_meteo_6h[variable == "precipitation"],
   scale_ratio = 4)
 ```
@@ -258,7 +237,7 @@ empirical_scalegram_praha_eobs_rescaled <- rescale_variance(
 ``` r
 dummy_1 <- empirical_scalegrams_meteo_6h[variable == "precipitation"]
 dummy_1$variable <- "NCAP"
-dummy_2 <- empirical_scalegram_praha_eobs_rescaled
+dummy_2 <- empirical_scalegram_montreal_eobs_rescaled
 dummy_2$variable <- "EOBS"
 compare_scalegrams <- rbind(dummy_1, dummy_2) 
 
