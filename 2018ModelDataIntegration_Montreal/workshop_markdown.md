@@ -13,21 +13,21 @@ Workshop: Stochastic methods in Earth System Science
 #### Download/install packages
 
 ``` r
-list_of_packages = c("data.table", "reshape2", "RColorBrewer", "zoo", "ggplot2", "scales","RNCEP", "gimms", "ncdf4", "parallel", "longmemo", "HKprocess")
+list_of_packages = c("data.table", "reshape2", "RColorBrewer", "zoo", "ggplot2", 
+"scales","RNCEP", "gimms", "ncdf4", "parallel", "longmemo", "HKprocess")
 
 new_packages = list_of_packages [!(list_of_packages  %in% installed.packages()[,"Package"])]
 if(length(new_packages)) install.packages(new_packages)
 lapply(list_of_packages, require, character.only = TRUE) 
-
-source("./functions/scalegram_w.R")
 ```
 
-#### Set working directory and create sub-dirs
+#### Set working directory and create sub-dirs / load functions
 
 ``` r
 work_dir = getwd() 
 
 dir.create("./data")
+dir.create("./functions")
 folder_names = c("NCEP_v2", #Hydrometeorological Variables
                  "GIMMS_3g") #Vegetation phenology indices
 
@@ -36,6 +36,10 @@ ncep_filename = paste("./data/",folder_names[1],"/meteo_sample.Rds", sep = "")
 for(i in 1:length(folder_names)){
   dir.create(paste("./data/", folder_names[i], sep =""))
 }
+
+download.file("https://raw.githubusercontent.com/imarkonis/Workshops/master/2017StochasticMethods_Prague/scalegram_w.R", 
+              "./functions/scalegram_w.R", mode = "wb")
+source("./functions/scalegram_w.R")
 ```
 
 #### Study period and location setup for NCAP 2 reanalysis dataset

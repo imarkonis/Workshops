@@ -1,6 +1,4 @@
-## 
-
-
+## Install packages
 
 list_of_packages = c("data.table", "parallel")
 
