@@ -1,15 +1,38 @@
-Rmarkdown demonstration
+Basics of reproducible research
 ================
 
 ------------------------------------------------------------------------
 
-### Objectives
-
-1.  Understand why R Markdown can be useful sometimes
-2.  Get familiar with the Markdown language
-3.  Integrate R scripting into Markdown
+### Motivation
+-   Which is the [problem?](http://journals.plos.org/plosmedicine/article/file?id=10.1371/journal.pmed.0020124&type=printable)
+-   How [big is it?](http://www.nature.com/news/1-500-scientists-lift-the-lid-on-reproducibility-1.19970)
+-   What is [reproducible research?](http://onlinelibrary.wiley.com/doi/10.1002/2016WR019285/abstract)
+-   What if research is [not reproducible?](https://retractionwatch.com/2013/02/01/seizure-study-retracted-after-authors-realize-data-got-terribly-mixed/)
 
 ------------------------------------------------------------------------
+
+### Main components of reproducible research
+
+- Data: Easily accessible in [open data repository](https://www.nature.com/sdata/policies/repositories) 
+or provide the data from [your own server](https://shiny.fzp.czu.cz/KVHEM/OWDA/).
+
+- Methods: Use [efficient workflow](https://csgillespie.github.io/efficientR/preface.html), [robust directory layout](https://nicercode.github.io/blog/2013-04-05-projects/), [clean code](http://adv-r.had.co.nz/Style.html), and share it with a version control, collaborative platform, such as [github](https://github.com/KVHEM/drought_uncertainty).
+
+- Results: Share results in a dynamic way with [Markdown](http://daringfireball.net/projects/markdown/), [Shiny](https://shiny.rstudio.com/) or [Sharelatex](https://www.sharelatex.com/)/[Googledocs](https://www.google.ca/docs/about/).
+
+To further enhance collaboration you can use [slack](https://www.nature.com/news/how-scientists-use-slack-1.21228) or [Jupyter Notebooks](https://reproducible-science-curriculum.github.io/introduction-RR-Jupyter/docs/slides/Jupyter_Intro_Background.slides.html#/1).
+
+### Pros and cons of the reproducible approach
+_Pros_
+- Dynamic
+- Collaborative
+- Archieving
+- Increase audience
+\n
+_Cons_
+- Time consuming
+- Needs training/coordination
+
 
 ### Markdown
 
@@ -45,9 +68,7 @@ R Markdown has some significant strengths:
 
 -   Allows collaborative science and coding (cloud-computing), and also..
 
--   Enables reproducible research and reporting.
-    -   What is [reproducible research?](http://onlinelibrary.wiley.com/doi/10.1002/2016WR019285/abstract)
-    -   [Why is it important?](http://www.nature.com/news/1-500-scientists-lift-the-lid-on-reproducibility-1.19970)
+
 
 ------------------------------------------------------------------------
 
