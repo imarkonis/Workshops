@@ -27,8 +27,7 @@ _Pros_
 - Dynamic
 - Collaborative
 - Archieving
-- Increase audience
-\n
+- Increase audience  
 _Cons_
 - Time consuming
 - Needs training/coordination
