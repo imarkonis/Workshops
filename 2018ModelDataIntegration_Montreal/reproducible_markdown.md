@@ -19,7 +19,7 @@ or provide the data from [your own server](https://shiny.fzp.czu.cz/KVHEM/OWDA/)
   - If possible, keep the names of local files downloaded from the internet or copied onto your computer unchanged.
   - Exception: names should be as much as representative as possible.
   - Us plain text as much as possible.
-  - Make data cleaning as easy and effective as possible;[tidy format](http://vita.had.co.nz/papers/tidy-data.pdf).
+  - Make data cleaning as easy and effective as possible; [tidy format](http://vita.had.co.nz/papers/tidy-data.pdf).
   - Create a script that can automatically generate clean data from the raw data.
 
 - Methods: Use [efficient workflow](https://csgillespie.github.io/efficientR/preface.html), [robust directory layout](https://nicercode.github.io/blog/2013-04-05-projects/), [clean code](http://adv-r.had.co.nz/Style.html), and share it with a version control, collaborative platform, such as [github](https://github.com/KVHEM/drought_uncertainty).
@@ -42,7 +42,7 @@ or provide the data from [your own server](https://shiny.fzp.czu.cz/KVHEM/OWDA/)
   
 > Remember that publishing is not the end of your research, but a way station towards your future analyses and the future analyses of others.
 
-To further enhance collaboration you can use [slack](https://www.nature.com/news/how-scientists-use-slack-1.21228) or [Jupyter Notebooks](https://reproducible-science-curriculum.github.io/introduction-RR-Jupyter/docs/slides/Jupyter_Intro_Background.slides.html#/1).
+To further enhance collaboration you can use [slack](https://www.nature.com/news/how-scientists-use-slack-1.21228).
 
 ### Pros and cons of the reproducible approach
 _Pros_
@@ -50,6 +50,7 @@ _Pros_
 - Collaborative
 - Archieving
 - Increase audience  
+
 _Cons_
 - Time consuming
 - Needs training/coordination
@@ -66,11 +67,8 @@ _Cons_
 Because...
 
 1.  it is easy. To beign with all you need to learn is just the first [page](https://www.rstudio.com/wp-content/uploads/2015/03/rmarkdown-reference.pdf).
-
 2.  it is fast and clean; you make less mistakes -&gt; increases efficiency. Here is an [example](https://en.wikipedia.org/wiki/Markdown).
-
 3.  it is portable; your documents can be edited in any text application on any operating system.
-
 4.  it is flexible;
     -   many other platforms/languages are using it, e.g. Dropbox, Github and of course R.
     -   variety in applications (e.g. emails, webpages, presentations, even books!)
@@ -84,11 +82,8 @@ Because...
 R Markdown has some significant strengths:
 
 -   Supports many formats (HTML, PDF, Word), which..
-
 -   Helps us present/teach a specific method in R, which..
-
 -   Allows collaborative science and coding (cloud-computing), and also..
-
 
 ------------------------------------------------------------------------
 
