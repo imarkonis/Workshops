@@ -33,6 +33,10 @@ _Cons_
 - Time consuming
 - Needs training/coordination
 
+### Examples of succseful applications of reproducible research
+- [LIGO project](https://losc.ligo.org/s/events/GW150914/GW150914_tutorial.html)
+- [European drought reconstruction](https://www.fzp.czu.cz/en/r-9409-science-research/r-9674-leading-research-groups/r-9669-hydrological-and-climate-variability/r-9713-team-news/drought-reconstruction-1776-2015.html)
+
 
 ### Markdown
 
