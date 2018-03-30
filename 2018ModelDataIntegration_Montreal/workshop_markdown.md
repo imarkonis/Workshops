@@ -19,7 +19,10 @@ https://www.rstudio.com/products/rstudio/download/
 #### Download/install packages
 
 ``` r
-list_of_packages <- c("data.table", "reshape2", "RColorBrewer", "zoo", "ggplot2", 
+devtools::install_github("imarkonis/scalegram")
+require("scalegram")
+
+list_of_packages = c("data.table", "reshape2", "RColorBrewer", "zoo", "ggplot2", "devtools",
 "scales","RNCEP", "gimms", "ncdf4", "parallel", "longmemo", "HKprocess")
 
 new_packages <- list_of_packages [!(list_of_packages  %in% installed.packages()[,"Package"])]
@@ -37,9 +40,9 @@ dir.create("./source")
 dir.create("./bin")
 dir.create("./results")
 
-download.file("https://raw.githubusercontent.com/imarkonis/Workshops/master/2017StochasticMethods_Prague/scalegram_w.R", 
+#download.file("https://raw.githubusercontent.com/imarkonis/Workshops/master/2017StochasticMethods_Prague/scalegram_w.R", 
               "./source/scalegram_w.R", mode = "wb")
-source("./source/scalegram_w.R")
+#source("./source/scalegram_w.R")
 ```
 
 #### Study period and location setup for NCAP 2 reanalysis dataset
