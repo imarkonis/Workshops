@@ -4,7 +4,7 @@ Workshop: An introduction to cross-scale variability analyses of the Earth syste
 
 ### by Christoforos Pappas & Yannis Markonis
 
-#### Université de Montréal, Montreal, April 4-5, 2018
+#### Université de Montréal, Département de géographie 520 ch de la Côte Sainte-Catherine, Room 140, April 4-5, 2018
 
 *Département de géographie and Centre d’études nordiques* *Université de Montréal, Montréal, QC, Canada* <christoforos.pappas@umontreal.ca>
 
