@@ -16,7 +16,7 @@ https://cran.r-project.org/
 
 https://www.rstudio.com/products/rstudio/download/
 
-#### Download/install packages
+#### Download/install/load packages
 
 ``` r
 devtools::install_github("imarkonis/scalegram")
@@ -62,7 +62,10 @@ acf(df_ar1[,1], main = NA, col=cols[2])
 plot.ts(df_fgn[ ,1], ylab = "fGn", col = cols[1])
 acf(df_fgn[ ,1], main = NA, col = cols[1])
 title("Common Stochastic models (Time series and ACFs)", outer = T)
+```
 
+#### Comparison of different autocorrelation structures
+``` r
 sc_wn_sd = scalegram(df_wn, stat = "sd", threshold = 100, plot = F)
 sc_wn_sd$Model = "White noise"
 
@@ -71,10 +74,7 @@ sc_ar1_sd$Model = "AR(1)"
 
 sc_fgn_sd = scalegram(df_fgn, stat = "sd", threshold = 100,  plot = F)
 sc_fgn_sd$Model = "FGN"
-```
 
-# Comparison of different autocorrelation structures
-``` r
 sc_stoc_df = data.frame(rbind(sc_wn_sd, sc_ar1_sd, sc_fgn_sd))
 
 gg_sc_stoc_comparison = ggplot(data = sc_stoc_df, 
@@ -100,6 +100,8 @@ gg_sc_stoc_comparison = ggplot(data = sc_stoc_df,
 
 print(gg_sc_stoc_comparison)
 ```
+
+
 ``` r
 # Other common models ---------------------------------------------------------- 
 # linear/deterministic trends
