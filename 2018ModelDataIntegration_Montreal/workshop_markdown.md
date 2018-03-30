@@ -1,10 +1,10 @@
 
-Workshop: Stochastic methods in Earth System Science
+Workshop: An introduction to cross-scale variability analyses of the Earth system
 ====================================================
 
 ### by Christoforos Pappas & Yannis Markonis
 
-#### CULS, Prague, September 21, 2017
+#### Université de Montréal, Montreal, April 4-5, 2018
 
 *Département de géographie and Centre d’études nordiques* *Université de Montréal, Montréal, QC, Canada* <christoforos.pappas@umontreal.ca>
 
