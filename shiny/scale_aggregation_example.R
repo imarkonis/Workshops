@@ -47,8 +47,6 @@ server <- function(input, output) {
 
 shinyApp(ui, server)
 
-
-
 output$extremes = renderPlot({
   lim.a = input$year - 50
   lim.b = input$year + 50
