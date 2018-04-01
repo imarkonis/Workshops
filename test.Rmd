@@ -2,7 +2,7 @@
 output: html_document
 ---
 
-```{r setup, include = F}
+```{r setup, include = T}
 knitr::opts_chunk$set(echo = T, cache = T)
 ```
 
@@ -29,8 +29,10 @@ https://www.rstudio.com/products/rstudio/download/
 devtools::install_github("imarkonis/scalegram")
 require("scalegram")
 
-list_of_packages = c("data.table", "reshape2", "RColorBrewer", "zoo", "ggplot2", "devtools", "latticeExtra",
-"scales","RNCEP", "gimms", "ncdf4", "parallel", "longmemo", "HKprocess", "shiny", "FGN", "moments", "Lmoments")
+list_of_packages = c("data.table", "reshape2", "RColorBrewer", "zoo", "ggplot2", 
+                     "devtools", "latticeExtra", "scales","RNCEP", "gimms", 
+                     "ncdf4", "parallel", "raster", "longmemo", "HKprocess", 
+                     "shiny", "FGN", "moments", "Lmoments")
 
 new_packages <- list_of_packages [!(list_of_packages  %in% installed.packages()[,"Package"])]
 if(length(new_packages)) install.packages(new_packages)
@@ -98,12 +100,12 @@ sc_det_df <- data.frame(rbind(sc_lm_sd, sc_rw_sd, sc_hf_sd))
     
 gg_sc_det_comparison <- ggplot(data = sc_det_df, 
            aes(x = scale, y = sd, group = interaction(Model, variable))) +
-      geom_line(aes(colour = Model), alpha = 0.2, show.legend = F)+
-      geom_point(aes(colour = Model), alpha = 0.2, show.legend = F)+
-      
-      geom_tile(aes(fill = Model))+
+      geom_line(aes(colour = Model), alpha = 0.2, show.legend = F) +
+      geom_point(aes(colour = Model), alpha = 0.2, show.legend = F) +
+      geom_tile(aes(fill = Model)) +
       scale_y_log10("Standard deviation [-]",
-                    labels = trans_format("log10", math_format(10 ^ .x))) +
+                    labels = trans_format("log10", math_format(10 ^ .x)),
+                    breaks=c(min(sc_det_df$sd, na.rm=T), 1)) +
       scale_x_log10("Aggregation scale [-]",
                     labels = trans_format("log10", math_format(10 ^ .x))) +
       scale_fill_manual("", values = cols) +
@@ -128,7 +130,7 @@ df_ar1 <- matrix(arima.sim(model = list(ar = 0.8), n = ts_length), ncol = repl_n
 # fGn model
 df_fgn <- matrix(simFGN0(n = ts_length, H = 0.9), ncol = repl_no)
 
-#plots
+# plots
 layout(matrix(c(1, 1, 2,
                 3, 3, 4,
                 5, 5, 6), 
@@ -165,13 +167,12 @@ gg_sc_stoc_comparison <- ggplot(data = sc_stoc_df,
            aes(x = scale, y = sd, group=interaction(Model, variable))) +
       geom_line(aes(colour = Model), alpha = 0.2, show.legend = F) +
       geom_point(aes(colour = Model), alpha = 0.2, show.legend = F) +
-      
       geom_smooth(aes(group = Model), se = F, method = "loess", colour= "black", size=1.5) +
       geom_smooth(aes(group = Model), se = F, method = "loess", colour= "white") +
-      
       geom_tile(aes(fill = Model)) +
       scale_y_log10("Standard deviation [-]",
-                    labels = trans_format("log10", math_format(10 ^ .x))) +
+                    labels = trans_format("log10", math_format(10 ^ .x)),
+                    breaks=c(min(sc_stoc_df$sd, na.rm=T), 1)) +
       scale_x_log10("Aggregation scale [-]",
                     labels = trans_format("log10", math_format(10 ^ .x))) +
       scale_fill_manual("", values = cols) +
@@ -185,7 +186,25 @@ gg_sc_stoc_comparison <- ggplot(data = sc_stoc_df,
 print(gg_sc_stoc_comparison)
 ```
 
+> *Exercise 1: Download and run the shiny application to compare different scalegrams of white noise, autoregressive and long-term persistence processes. Can you replicate these results by making the appropriate changes in the scripts.*
+
+> *Exercise 2: Plot the scalegrams of time series that combine (a) linear trend & white noise/autoregressive process (rho = 0.8), (b) harmonic fluctutation & fGn (H = 0.85) & (c) shifting mean in (-2, 2) & autoregressive process (rho = 0.4)*
+
 ### Project: Real world data
+
+**NCEP/NCAR 2 Reanalysis Data**
+
+More info about data: <https://www.esrl.noaa.gov/psd/data/gridded/data.ncep.reanalysis2.html>
+
+**Variables of interest**
+
+air.2m is Air Temperature (At 2 meters) deg K
+
+prate.sfc is Precipitation rate (At Surface) Kg/m^2/s
+
+_These info should go to read.me file._
+
+*ncep\_dload* function returns a three dimensional array of weather data. The three dimensions are latitude, longitude, and datetime reflected in the dimnames of the array. Datetimes are always expressed in UTC with the format "%Y\_%m\_%d\_%H". Optionally, the units of the variable being queried are printed upon completion.
 
 #### Set working directory and create sub-dirs / load functions
 
@@ -225,19 +244,8 @@ end_date = as.Date(tail(time_as_date, 1))
 
 #### Hydroclimatic data
 
-**Define which variables should be downloaded**
-
-Variables in reference to a T62 gaussian grid
-
-air.2m is Air Temperature (At 2 meters) deg K
-
-prate.sfc is Precipitation rate (At Surface) Kg/m^2/s
-
-**NCEP/NCAR 2 Reanalysis Data**
-
-More info about data: <https://www.esrl.noaa.gov/psd/data/gridded/data.ncep.reanalysis2.html>
-
-*ncep\_dload* function returns a three dimensional array of weather data. The three dimensions are latitude, longitude, and datetime reflected in the dimnames of the array. Datetimes are always expressed in UTC with the format "%Y\_%m\_%d\_%H". Optionally, the units of the variable being queried are printed upon completion.
+We download data from the public repository. This should be a single script, e.g., 
+"download_ncep.R".
 
 ```{r Download ncep data, eval = F}
 variables <- c("air.2m", "prate.sfc")
@@ -251,67 +259,76 @@ for (j in 1:n_variables){# loop through variables
     years.minmax  = c(start_year, end_year), # overall length of the dataset
     lat.southnorth  = c(site_coords@coords[2], site_coords@coords[2]),
     lon.westeast  = c(site_coords@coords[1], site_coords@coords[1]),
-    reanalysis2 = TRUE,
-    return.units = TRUE,
-    status.bar  = TRUE
+    reanalysis2 = T,
+    return.units = T,
+    status.bar  = T
   )
   # get the mean of the 4 cells (i.e., area)
   ncep_raw[[j]] <- apply(ncep_dload, 3, mean, na.rm=T)
 } # end loop through variables
-saveRDS(ncep_raw_long, "./data/montreal_T_P_ncep_raw.rds")
+names(ncep_raw) <- c("temperature", "precipitation")
+saveRDS(ncep_raw, "./data/montreal_ncep_raw.rds")
+rm(ncep_raw); gc() #clear memory [always try to keep memory usage as low as possible]
 ```
+
+Raw data are saved and will be considered as read-only. Any further manipulation
+should be saved seperately.
 
 ```{r Manipulation of data, echo = T}
 n_variables <- 2
-ncep_raw <- readRDS("./data/montreal_T_P_ncep_raw.rds")
-names(ncep_raw) <- c("temperature", "precipitation")
-montreal_T_P_ncep <- data.table(melt(ncep_raw))
-colnames(montreal_T_P_ncep)[2] <- "variable"
+ncep_raw <- readRDS("./data/montreal_ncep_raw.rds") #created by download_ncep.R
 
-montreal_T_P_ncep[variable == "temperature", value := value - 273]    #Change units from K to C
-montreal_T_P_ncep[variable == "precipitation", value := value * 3600 * 6]    #Change units from Kg/m^2/s to mm/6h
+montreal_ncep <- data.table(melt(ncep_raw))
+colnames(montreal_ncep)[2] <- "variable"
 
-montreal_T_P_ncep[, time := rep(time_as_date, n_variables)]
-setcolorder(montreal_T_P_ncep, c("variable", "time", "value"))
-#saveRDS(montreal_T_P_ncep, "./data/montreal_T_P_ncep.rds")
+montreal_ncep[variable == "temperature", value := value - 273]    #Change from K to C
+montreal_ncep[variable == "precipitation", value := value * 3600 * 6]    #Change from Kg/m^2/s to mm/6h
+
+montreal_ncep[, time := rep(time_as_date, n_variables)]
+setcolorder(montreal_ncep, c("variable", "time", "value"))
+saveRDS(montreal_ncep, "./data/montreal_ncep.rds") 
+rm(montreal_ncep); gc() 
 ```
+
+Again this should be another individual script, "data_manipulation". 
+
 ------------------------------------------------------------------------
 
 #### Scalegram: a diagnostic tool for cross-scale analysis
 
-```{r}
-#montreal_T_P_ncep <- readRDS("./data/montreal_T_P_ncep.rds")
-```
-
 Aggregate 6-h time series to monthly time step and estimate empirical scalograms
 
 ```{r scalegram, eval = F}
-montreal_T_P_ncep[, month := month(time)]
-montreal_T_P_ncep[, year := year(time)]
-montreal_T_P_ncep_month <- montreal_T_P_ncep[variable != "precipitation" , mean(value), list(month, year, variable)]  
-montreal_T_P_ncep_month <- rbind(montreal_T_P_ncep_month, montreal_T_P_ncep[variable == "precipitation", sum(value), list(month, year,variable)])
-names(montreal_T_P_ncep_month)[4] = "value"
+montreal_ncep <- readRDS("./data/montreal_ncep.rds") #created by data_manipulation.R
 
-#ncep_raw_matrix <- dcast(data = montreal_T_P, time~variable, value.var = "value")   #Transformation for parallel computing
+scale_montreal_ncep_6h <- data.table(montreal_ncep[, scalegram(value, plot = F), variable]) #Waiting for chris to fix this
+
+montreal_ncep[, month := month(time)]
+montreal_ncep[, year := year(time)]
+montreal_ncep_month <- montreal_ncep[variable == "temperature" , mean(value), 
+                                     list(month, year, variable)]  
+montreal_ncep_month <- 
+  rbind(montreal_ncep_month, 
+        montreal_ncep[variable == "precipitation", 
+                     sum(value), list(month, year,variable)])
+
+colnames(montreal_ncep_month)[4] = "value"
+#ncep_raw_matrix <- dcast(data = montreal, time~variable, value.var = "value")   #Transformation for parallel computing
 #empirical_scalegrams <- scalegram_parallel(ncep_raw_matrix[-1])
 
-empirical_scalegrams_meteo_6h <- data.table(montreal_T_P_ncep[, scalegram_main(value), variable])
-empirical_scalegrams_meteo_mon <- data.table(montreal_T_P_ncep_month[, scalegram_main(value), variable])
+scale_montreal_ncep_month <- data.table(montreal_ncep_month[, scalegram(value, plot = F), variable]) #Waiting for chris to fix this
 ```
 
-``` r
-plot_scalegram(empirical_scalegrams_meteo_6h)
-plot_scalegram(empirical_scalegrams_meteo_mon)
-```
+> *Discussion: Is the above script in line with the workflow principles of our project?*  
 
-**Plotting two scalegrams**
+**Comparing different scalegrams**
 
-``` r
+```{r two scalegram, eval = F}
 empirical_scalegrams_meteo_mon_6h <- empirical_scalegrams_meteo_mon
 empirical_scalegrams_meteo_mon_6h$scale <- empirical_scalegrams_meteo_mon_6h$scale * 120
 
 empirical_scalegrams_meteo_mon_6h$variable <- "Monthly precipitation"
-dummy <- empirical_scalegrams_meteo_6h[variable == "precipitation"]
+dummy <- sc_montreal_6h[variable == "precipitation"]
 dummy$variable <- "6-h precipitation"
 
 combo_p_plot <- rbind(dummy, empirical_scalegrams_meteo_mon_6h)
@@ -321,14 +338,14 @@ plot_scalegram(combo_p_plot)
 
 **Rescaling monthly scalegrams to 6h**
 
-``` r
+```{r rescale, eval = F}
 empirical_scalegram_precip_rescaled <- rescale_variance( #Var. of the 6h scalegrams in the monthly scale  
   emp_scalegram_coarse = empirical_scalegrams_meteo_mon[variable == "precipitation"], 
-  emp_scalegram_fine = empirical_scalegrams_meteo_6h[variable == "precipitation"],
+  emp_scalegram_fine = sc_montreal_6h[variable == "precipitation"],
   scale_ratio = 4 * 30)
 
 empirical_scalegram_precip_rescaled$variable <- "Monthly precipitation"
-dummy <- empirical_scalegrams_meteo_6h[variable == "precipitation"]
+dummy <- sc_montreal_6h[variable == "precipitation"]
 dummy$variable <- "6-h precipitation"
 
 combo_p_plot <- rbind(dummy, empirical_scalegram_precip_rescaled)
@@ -336,9 +353,9 @@ combo_p_plot <- rbind(dummy, empirical_scalegram_precip_rescaled)
 plot_scalegram(combo_p_plot)
 ```
 
-*Exercise 1: Plot in one scalegram 6-h, daily, monthly and annual scalegrams.*
+*Exercise 3: Plot in one scalegram 6-h, daily, monthly and annual scalegrams.*
 
-*Exercise 2 (optional): Can you plot the original variances instead of the standardised ones?*
+*Exercise 4: Compare scalegrams of T and P between Montreal and another location.* 
 
 ------------------------------------------------------------------------
 
@@ -359,12 +376,12 @@ empirical_scalegram_montreal_station <- scalegram_main(montreal_station_prec$val
 
 empirical_scalegram_montreal_station_rescaled <- rescale_variance(
   emp_scalegram_coarse = empirical_scalegram_montreal_station, 
-  emp_scalegram_fine = empirical_scalegrams_meteo_6h[variable == "precipitation"],
+  emp_scalegram_fine = sc_montreal_6h[variable == "precipitation"],
   scale_ratio = 4)
 ```
 
 ``` r
-dummy_1 <- empirical_scalegrams_meteo_6h[variable == "precipitation"]
+dummy_1 <- sc_montreal_6h[variable == "precipitation"]
 dummy_1$variable <- "NCAP"
 dummy_2 <- empirical_scalegram_montreal_station_rescaled
 dummy_2$variable <- "Station"
@@ -372,7 +389,6 @@ compare_scalegrams <- rbind(dummy_1, dummy_2)
 
 plot_scalegram(compare_scalegrams)
 ```
-
 **Comparison between NCAP and EOBS data**
 
 CPC data were also downloaded from: <http://climexp.knmi.nl/start.cgi?id=someone@somewhere>
@@ -393,12 +409,12 @@ empirical_scalegram_montreal_eobs <- scalegram_main(montreal_eobs_prec$value)
 
 empirical_scalegram_montreal_eobs_rescaled <- rescale_variance(
   emp_scalegram_coarse = empirical_scalegram_montreal_eobs, 
-  emp_scalegram_fine = empirical_scalegrams_meteo_6h[variable == "precipitation"],
+  emp_scalegram_fine = sc_montreal_6h[variable == "precipitation"],
   scale_ratio = 4)
 ```
 
 ``` r
-dummy_1 <- empirical_scalegrams_meteo_6h[variable == "precipitation"]
+dummy_1 <- sc_montreal_6h[variable == "precipitation"]
 dummy_1$variable <- "NCAP"
 dummy_2 <- empirical_scalegram_montreal_eobs_rescaled
 dummy_2$variable <- "EOBS"
