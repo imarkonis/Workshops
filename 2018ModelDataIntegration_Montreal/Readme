@@ -1,1 +1,32 @@
-Our second workshop with Dr. Chris Pappas on multi-scale stochastic methods.
+Workshop – An introduction to cross-scale variability analyses of the Earth system
+
+Yannis Markonis (1) and Christoforos Pappas (2)
+
+(1) Department of Water Resources and Environmental Modeling, Czech University of Life Sciences, Prague, Czech Republic
+(2) Département de géographie, Université de Montréal, Montreal, Canada
+
+When	: April 4 & 5, 2018, 10 am – 5 pm
+Where	: Université de Montréal, Département de géographie
+	  520 ch de la Côte Sainte-Catherine, Room 439
+
+This two-day workshop focuses on the integration of stochastic and deterministic 
+methods for understanding and modelling the Earth system. The workshop will provide 
+hands-on training in R programming language on cross-scale analyses of Earth system 
+data, including, but not limited to hydrometeorological (e.g., temperature and 
+precipitation) and ecosystem processes (tree growth and terrestrial carbon dynamics). 
+By analyzing how the variability in Earth system observations changes across scales 
+the underlying processes can be revealed, shedding light into dominant mechanisms 
+and critical spatiotemporal scales. 
+
+The first day of the workshop focuses onstarts with the theoretical foundations 
+of cross-scale data analyses, including selected examples from published literature.
+Then, Traditional traditional techniques for the exploration of multi-scale 
+fluctuations (e.g., wavelet analysis) as well as new model-data integration 
+approaches (scalegram) will be presented, confronting across a continuum of 
+spatiotemporal scales observed patterns with model simulation results. Hands on 
+training with publicly available Earth system observations will be provided.
+The second day is optional and is designed to guide the participants to apply 
+the methods presented during the previous day on their data sets and to address 
+science questions relevant to their research. Here we aim to an open-ended and 
+conversational session, tailored to the specific needs of each researcher.
+
