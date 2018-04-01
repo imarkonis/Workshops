@@ -6,7 +6,7 @@ ui <- fluidPage(
   numericInput("n", "n", 1000),
   sliderInput(inputId = "ar",
               step = 0.01,
-              label = "ro1:",
+              label = "rho1:",
               min = 0,
               max = 1,
               value = 0.3),
