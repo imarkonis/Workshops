@@ -28,8 +28,6 @@ server <- function(input, output) {
     arima.sim(model = list(ar = input$ar), n = input$n)
   })
 
-  arima.sim(model = list(ar = 0.8), n = ts_length)
-
   randomVals_fgn <- eventReactive(input$go, {
     FGN::SimulateFGN(input$n, input$H)
   })
