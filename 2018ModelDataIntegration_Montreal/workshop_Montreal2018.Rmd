@@ -2,7 +2,7 @@
 output: html_document
 ---
 
-```{r setup, include = T}
+```{r setup, include = T, echo = F}
 knitr::opts_chunk$set(echo = T, cache = T)
 ```
 
@@ -38,8 +38,6 @@ new_packages <- list_of_packages [!(list_of_packages  %in% installed.packages()[
 if(length(new_packages)) install.packages(new_packages)
 lapply(list_of_packages, require, character.only = T) 
 ```
-
-This should be saved in the source folder, as "libraries.R". FIX THIS
 
 #### Create Synthetic time series with commonly used models (case A)
 
@@ -163,7 +161,7 @@ scale_ar1 <- scalegram(ar1_df, stat = "sd", threshold = 100, plot = F)
 scale_ar1$Model <- "AR(1)"
 
 scale_fgn <- scalegram(fgn_df, stat = "sd", threshold = 100,  plot = F)
-sc_fgn_sd$Model <- "FGN"
+scale_fgn$Model <- "FGN"
 
 scale_b_df <- data.frame(rbind(scale_wn, scale_ar1, scale_fgn))
 
@@ -279,10 +277,10 @@ rm(ncep_raw); gc() #clear memory [always try to keep memory usage as low as poss
 Raw data are saved and will be considered as read-only. Any further manipulation
 should be saved seperately.
 
-```{r Manipulation of data, echo = T}
+```{r Manipulation of data}
 n_variables <- 2
 ncep_raw <- readRDS("./data/montreal_ncep_raw.rds") #created by download_ncep.R
-
+getwd()
 montreal_ncep <- data.table(melt(ncep_raw))
 colnames(montreal_ncep)[2] <- "variable"
 
@@ -303,7 +301,7 @@ Again this should be another individual script, "data_manipulation".
 
 Aggregate 6-h time series to monthly time step and estimate empirical scalograms
 
-```{r scalegram, eval = F}
+```{r scalegram, eval = T}
 montreal_ncep <- readRDS("./data/montreal_ncep.rds") #created by data_manipulation.R
 
 scale_montreal_ncep_6h <- data.table(montreal_ncep[, scalegram(value, plot = F), variable])[,1:3]
@@ -332,7 +330,7 @@ plot_scalegram(scale_montreal_ncep_month)
 
 **Rescale scalegrams**
 
-```{r two scalegram, eval = F}
+```{r two scalegram, eval = T}
 scale_P_month_6h <- scale_montreal_ncep_month[variable == "precipitation"]
 scale_P_month_6h$scale <- scale_P_month_6h$scale * 120 # i.e., 4 6h during one day for a month (4 * 30)
 scale_P_month_6h$variable <- "Monthly precipitation"
@@ -368,7 +366,7 @@ plot_scalegram(comb_p_plot)
 
 Station data correspond to daily meteorological data for MONTREAL/PIERRE_ELLIOTT_TRUDEA that are downloaded from: <http://climexp.knmi.nl/start.cgi?id=someone@somewhere>
 
-```{r model-observation comparison, eval = F}
+```{r model-observation comparison, eval = T}
 download.file("http://climexp.knmi.nl/data/pgdcnCA007025250.dat", "./data/montreal_P_ghcn.dat")
 montreal_station_P <- data.table(read.csv("./data/montreal_P_ghcn.dat", sep = "", skip = 21, header = F))
 colnames(montreal_station_P) <- c("year", "month", "day", "value")
@@ -390,10 +388,3 @@ compare_NCEP_station <- rbind(dummy_1, dummy_2)
 
 plot_scalegram(compare_NCEP_station)
 ```
-**Comparison between NCAP and EOBS data**
-
-CPC data were also downloaded from: <http://climexp.knmi.nl/start.cgi?id=someone@somewhere>
-
-More info about CPC dataset can be found at: <https://www.esrl.noaa.gov/psd/data/gridded/data.unified.daily.conus.html>
-
-*Exercise 6: Compare all three precipitation datasets.*
