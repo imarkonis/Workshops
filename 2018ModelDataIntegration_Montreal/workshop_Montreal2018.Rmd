@@ -11,11 +11,43 @@ Workshop: An introduction to cross-scale variability analyses of the Earth syste
 
 ### by Christoforos Pappas & Yannis Markonis
 
-#### Université de Montréal, Département de géographie 520 ch de la Côte Sainte-Catherine, Room 140, April 4-5, 2018
+#### Université de Montréal, Département de géographie 
+
+#### 520 ch de la Côte Sainte-Catherine, Room 140
+
+#### April 4-5, 2018
 
 *Département de géographie and Centre d’études nordiques* *Université de Montréal, Montréal, QC, Canada* <christoforos.pappas@umontreal.ca>
 
 *Department of Water Resources* *Czech University of Life Sciences Prague, Prague, Czech republic* <markonis@fzp.czu.cz>
+
+###Summary
+
+This two-day workshop focuses on the integration of stochastic and deterministic 
+methods for understanding and modelling the Earth system. The workshop will provide 
+hands-on training in R programming language on cross-scale analyses of Earth system 
+data, including, but not limited to hydrometeorological (e.g., temperature and 
+precipitation) and ecosystem processes (tree growth and terrestrial carbon dynamics). 
+By analyzing how the variability in Earth system observations changes across scales 
+the underlying processes can be revealed, shedding light into dominant mechanisms 
+and critical spatiotemporal scales. 
+
+The first day of the workshop starts with the theoretical foundations 
+of cross-scale data analyses, including selected examples from published literature.
+Traditional techniques for the exploration of multi-scale 
+fluctuations (e.g., wavelet analysis) as well as new model-data integration 
+approaches (scalegram) will be presented, confronting across a continuum of 
+spatiotemporal scales observed patterns with model simulation results. Hands on 
+training with publicly available Earth system observations will be provided.
+The second day is optional and is designed to guide the participants to apply 
+the methods presented during the previous day on their data sets and to address 
+science questions relevant to their research. Here, we aim to an open-ended and 
+conversational session, tailored to the specific needs of each researcher.
+
+###Acknowledgement
+This two-day workshop is presented through the Canada Research Chair in Atmospheric Biogeosciences in High Latitudes based in the Département de géographie at the Université de Montréal.
+
+###Before the workshop
 
 #### Install/Update R & Rstudio to latest version
 
@@ -23,27 +55,27 @@ https://cran.r-project.org/
 
 https://www.rstudio.com/products/rstudio/download/
 
-#### Download/install/load packages
+###Part 1. Cross-scale analysis of synthetic time series
+
+#### Install/load packages
 
 ``` {r load, message = F, results = 'hide'}
-devtools::install_github("imarkonis/scalegram")
-require("scalegram")
-
 list_of_packages = c("data.table", "reshape2", "RColorBrewer", "zoo", "ggplot2", 
                      "devtools", "latticeExtra", "scales","RNCEP", "gimms", 
                      "ncdf4", "parallel", "raster", "longmemo", "HKprocess", 
                      "shiny", "FGN", "moments", "Lmoments")
-
-new_packages <- list_of_packages [!(list_of_packages  %in% installed.packages()[,"Package"])]
+new_packages <- list_of_packages [!(list_of_packages  %in% installed.packages()[, "Package"])]
 if(length(new_packages)) install.packages(new_packages)
 lapply(list_of_packages, require, character.only = T) 
+devtools::install_github("imarkonis/scalegram")
+require("scalegram")
 ```
 
-#### Create Synthetic time series with commonly used models (case A)
+#### 1.1 Create Synthetic time series with commonly used models
 
 ``` {r synthetic A, fig.width = 10, fig.height = 10}
-set.seed(1)
-ts_length <- 10000
+set.seed(1)   #Keep constant number generators for reproducibility of results 
+ts_length <- 10000 
 repl_no <- 5 
 cols <- brewer.pal(9, "Set1")[c(1:3)]
 
@@ -54,10 +86,10 @@ lm_df <- data.frame(lm1 = -10 * (1:ts_length),
 
 # harmonic fluctuation
 #Equation: y = a * sin(b * t)
-t <- seq(0, pi,, ts_length)
+t <- 1:ts_length
 a <- 3
-amp <- 2
-hf_df <- data.frame(y1 = a * sin(1000 * t))
+period <- 20 # periodicity
+hf_df <- data.frame(y1 = a * sin((2 * pi / period) * t))
 
 # random walk
 rw_df <- data.frame(rw1 = cumsum(rnorm(n = ts_length)),
@@ -72,7 +104,7 @@ layout(matrix(c(1, 1, 2,
 par(oma = c(0, 0, 2, 0))
 
 plot.ts(lm_df[ ,1], ylab = "Linear trend", col = cols[3])
-acf(lm_df[ ,1], main = NA,  col=cols[3])
+acf(lm_df[ ,1], main = NA,  col=cols[3])  #autocorellation function
 
 plot.ts(hf_df[1:1000, 1], ylab = "Harmonic fluctuation", col = cols[1])
 acf(hf_df[ ,1], main = NA, col = cols[1])
@@ -80,14 +112,16 @@ acf(hf_df[ ,1], main = NA, col = cols[1])
 plot.ts(rw_df[ ,1], ylab = "Random walk", col = cols[2]) 
 acf(rw_df[ ,1], main = NA, col = cols[2])
 
-title("Case A (Time series and ACFs)", outer = T)
+title("Time series and ACFs", outer = T)
 ```
 
-#### Comparison of different autocorrelation structures (case A)
+A [random walk](https://en.wikipedia.org/wiki/Random_walk) is a stochastic process, that describes a path that consists of a succession of random steps on some mathematical space.
 
-See *scalegram* package documentation (?scalegram, ?plot_scalegram).
+#### 1.2 Comparison of different autocorrelation structures 
 
-``` {r comparison A, fig.width = 10, fig.height = 10}
+See *scalegram* package documentation (?scalegram).
+
+``` {r comparison A}
 scale_lm <- scalegram(as.matrix(lm_df), stat = "sd", threshold = 100, plot = F)
 scale_lm$Model <- "Linear trend"
 
@@ -100,7 +134,7 @@ scale_hf$Model <- "Harmonic fluctuation"
 # compare different models
 scale_a_df <- data.frame(rbind(scale_lm, scale_rw, scale_hf))
     
-scale_a_comparison <- ggplot(data = scale_a_df, 
+scale_a_comparison <- ggplot(data = scale_a_df,
            aes(x = scale, y = value, group = interaction(Model, variable))) +
       geom_line(aes(colour = Model), alpha = 0.2, show.legend = F) +
       geom_point(aes(colour = Model), alpha = 0.2, show.legend = F) +
@@ -121,7 +155,13 @@ scale_a_comparison <- ggplot(data = scale_a_df,
 print(scale_a_comparison)
 ```
 
-#### Create Synthetic time series with commonly used models (case B)
+[White noise](https://en.wikipedia.org/wiki/White_noise) corresponds to a purely random process.
+
+[Autoregressive process](https://en.wikipedia.org/wiki/Autoregressive_model) is a Markovian process characterized by short term persistence.
+
+[Fractional Gaussian noise](https://en.wikipedia.org/wiki/Fractional_Brownian_motion) model is a generalization of Wiener process, characterized by long term persistence.
+
+#### 1.3 Create Synthetic time series with commonly used models
 ``` {r synthetic B, fig.width = 10, fig.height = 10}
 # white noise
 wn_df <- matrix(rnorm(n = ts_length), ncol = repl_no) 
@@ -138,7 +178,7 @@ layout(matrix(c(1, 1, 2,
                 5, 5, 6), 
                 nrow = 3, 
                 byrow = T))
-par(oma = c(0, 0, 2, 0))
+par(oma = c(0, 0, 2, 0))  
 
 plot.ts(wn_df[ ,1], ylab = "White noise", col = cols[3])
 acf(wn_df[,1], main=NA,  col = cols[3])
@@ -149,11 +189,11 @@ acf(ar1_df[,1], main = NA, col = cols[2])
 plot.ts(fgn_df[ ,1], ylab = "fGn", col = cols[1])
 acf(fgn_df[ ,1], main = NA, col = cols[1])
 
-title("Common Stochastic models (Time series and ACFs)", outer = T)
+title("Time series and ACFs", outer = T)
 ```
 
-#### Comparison of different autocorrelation structures (case B)
-``` {r comparison B, fig.width = 10, fig.height = 10}
+#### 1.4 Comparison of different autocorrelation structures
+``` {r comparison B}
 scale_wn <- scalegram(wn_df, stat = "sd", threshold = 100, plot = F)
 scale_wn$Model <- "White noise"
 
@@ -188,29 +228,21 @@ scale_b_comparison <- ggplot(data = scale_b_df,
 print(scale_b_comparison)
 ```
 
-> *Exercise 1: Download and run the shiny application to compare different scalegrams of white noise, autoregressive and long-term persistence processes. Can you replicate these results by making the appropriate changes in the scripts.*
+*Exercise 1: Modify the parameters of the white noise process (e.g., uniform/normal distribution), autoregressive process (lag-1 autocorrelation coefficient in (-1, 1)) and long-term persistence process (Hurst coefficient in (0, 1)).*
 
-> *Exercise 2: Plot the scalegrams of time series that combine (a) linear trend & white noise/autoregressive process (rho = 0.8), (b) harmonic fluctutation & fGn (H = 0.85) & (c) shifting mean in (-2, 2) & autoregressive process (rho = 0.4)*
+*Exercise 2: Create a periodic process, with two harmonics T_1 = 24 h (diurnal cycle) and T_2 = 1 year (annual cycle)*
 
-> *Exercise 3: [optional] Explore other statistical properties/[L moments](https://en.wikipedia.org/wiki/L-moment), e.g., skewness etc.*       
+*Exercise 3: Plot the scalegrams of time series that combine (a) a linear trend & white noise/autoregressive process (rho = 0.8), (b) the harmonic fluctutation from exercise 2 & fGn process (H = 0.85) & (c) a step function with mean in (-2, 2)*
 
-### Project: Real world data
+*Exercise 4: [optional] Explore other statistical properties, e.g., skewness & [L moments](https://en.wikipedia.org/wiki/L-moment).*       
+
+###Part 2. Cross-scale analysis of real-world data
 
 An overview of state-of-the-art precipitation datasets can be found [here](https://agupubs.onlinelibrary.wiley.com/doi/full/10.1002/2017RG000574).
 
+Here we use the NCEP/NCAR 2 Reanalysis dataset as it has been already implemented in R (package RNCEP)
+
 **NCEP/NCAR 2 Reanalysis Data**
-
-More info about data: <https://www.esrl.noaa.gov/psd/data/gridded/data.ncep.reanalysis2.html>
-
-**Variables of interest**
-
-air.2m is Air Temperature (At 2 meters) deg K
-
-prate.sfc is Precipitation rate (At Surface) Kg/m^2/s
-
-_These info should go to read.me file._
-
-*ncep\_dload* function returns a three dimensional array of weather data. The three dimensions are latitude, longitude, and datetime reflected in the dimnames of the array. Datetimes are always expressed in UTC with the format "%Y\_%m\_%d\_%H". Optionally, the units of the variable being queried are printed upon completion.
 
 #### Set working directory and create sub-dirs / load functions
 
@@ -224,11 +256,23 @@ dir.create("./bin")
 dir.create("./results")
 ```
 
+More info about data: <https://www.esrl.noaa.gov/psd/data/gridded/data.ncep.reanalysis2.html>
+
+**Variables of interest**
+
+air.2m is Air Temperature (At 2 meters) deg K
+
+prate.sfc is Precipitation rate (At Surface) Kg/m^2/s
+
+_These info should go to read.me file._
+
+*ncep\_dload* function returns a three dimensional array of weather data. The three dimensions are latitude, longitude, and datetime reflected in the dimnames of the array. Datetimes are always expressed in UTC with the format "%Y\_%m\_%d\_%H". Optionally, the units of the variable being queried are printed upon completion.
+
 #### Study period and location setup for NCAP 2 reanalysis dataset
 
 ```{r Time and space setup, warnings = FALSE}
 ncep_raw <- list() #Use list in case time series of different lengths are combined
-site_coords <- data.frame(lat = 45.5, lon = 286.5) # C'est Montreal
+site_coords <- data.frame(lat = 45.5, lon = 286.5) # Montréal
 coordinates(site_coords) <- c("lon", "lat")
 start_day <- 1
 end_day <- 31
@@ -236,19 +280,17 @@ start_month <- 1
 end_month <- 12
 start_year <- 1979
 end_year <- 2016
-
-time_as_date = as.POSIXct(seq(ISOdate(start_year, start_month, start_day, 00, 00, tz = "UTC"),
-                              ISOdate(end_year, end_month, end_day, 18, 00, tz = "UTC"),
-                              "6 h"), tz = "UTC")
-
-start_date = as.Date(head(time_as_date, 1))
+time_as_date = as.POSIXct(seq(ISOdate(start_year, start_month, start_day, 00, 00, tz = "UTC"), #from
+                              ISOdate(end_year, end_month, end_day, 18, 00, tz = "UTC"),       #to   
+                              "6 h"), tz = "UTC")                                              #by
+start_date = as.Date(head(time_as_date, 1)) 
 end_date = as.Date(tail(time_as_date, 1))
 ```
 
-#### Hydroclimatic data
+#### Download data
 
 We download data from the public repository. This should be a single script, e.g., 
-"download_ncep.R".
+"download_ncep.R". 
 
 ```{r Download ncep data, eval = F}
 variables <- c("air.2m", "prate.sfc")
@@ -258,13 +300,13 @@ for (j in 1:n_variables){# loop through variables
   ncep_dload <- NCEP.gather(
     variable  = variables[j],
     level = 'gaussian',
-    months.minmax = c(start_month, end_month), 
+    months.minmax = c(start_month, end_month), # 
     years.minmax  = c(start_year, end_year), # overall length of the dataset
     lat.southnorth  = c(site_coords@coords[2], site_coords@coords[2]),
     lon.westeast  = c(site_coords@coords[1], site_coords@coords[1]),
     reanalysis2 = T,
     return.units = T,
-    status.bar  = T
+    status.bar = T
   )
   # get the mean of the 4 cells (i.e., area)
   ncep_raw[[j]] <- apply(ncep_dload, 3, mean, na.rm=T)
@@ -277,8 +319,7 @@ rm(ncep_raw); gc() #clear memory [always try to keep memory usage as low as poss
 Raw data are saved and will be considered as read-only. Any further manipulation
 should be saved seperately.
 
-```{r Manipulation of data}
-n_variables <- 2
+```{r Manipulation of data, eval = F}
 ncep_raw <- readRDS("./data/montreal_ncep_raw.rds") #created by download_ncep.R
 getwd()
 montreal_ncep <- data.table(melt(ncep_raw))
@@ -293,13 +334,13 @@ saveRDS(montreal_ncep, "./data/montreal_ncep.rds")
 rm(montreal_ncep); gc() 
 ```
 
-Again this should be another individual script, "data_manipulation". 
+Again this should be another individual script, "data_manipulation.R". 
 
 ------------------------------------------------------------------------
 
 #### Scalegram: a diagnostic tool for cross-scale analysis
 
-Aggregate 6-h time series to monthly time step and estimate empirical scalograms
+Aggregate 6-h time series to monthly time step and estimate  scalegrams
 
 ```{r scalegram, eval = T}
 montreal_ncep <- readRDS("./data/montreal_ncep.rds") #created by data_manipulation.R
@@ -313,12 +354,11 @@ plot_scalegram(scale_montreal_ncep_6h)
 
 montreal_ncep[, month := month(time)]
 montreal_ncep[, year := year(time)]
-montreal_ncep_month <- montreal_ncep[variable == "temperature" , mean(value), 
-                                     list(month, year, variable)]  
+
+#Total (sum) monthly precipitation & Mean monthly temperature
 montreal_ncep_month <- 
-  rbind(montreal_ncep_month, 
-        montreal_ncep[variable == "precipitation", 
-                     sum(value), list(month, year,variable)])
+  rbind(montreal_ncep[variable == "temperature", mean(value), list(month, year, variable)], 
+        montreal_ncep[variable == "precipitation", sum(value), list(month, year,variable)])
 
 colnames(montreal_ncep_month)[4] = "value"
 
@@ -326,7 +366,7 @@ scale_montreal_ncep_month <- data.table(montreal_ncep_month[, scalegram(value, p
 plot_scalegram(scale_montreal_ncep_month)
 ```
 
-> *Discussion: Is the above script in line with the workflow principles of our project?*  
+*Discussion: Is the above script in line with the workflow principles of our project?*  
 
 **Rescale scalegrams**
 
@@ -360,11 +400,11 @@ plot_scalegram(comb_p_plot)
 
 ------------------------------------------------------------------------
 
-#### Model-Observational data comparison
+#### Compare model results with observeations
 
 **Comparison between NCAP and station data**
 
-Station data correspond to daily meteorological data for MONTREAL/PIERRE_ELLIOTT_TRUDEA that are downloaded from: <http://climexp.knmi.nl/start.cgi?id=someone@somewhere>
+Station data correspond to daily meteorological data for MONTREAL/PIERRE_ELLIOTT_TRUDEAU that are downloaded from: <http://climexp.knmi.nl/start.cgi?id=someone@somewhere>
 
 ```{r model-observation comparison, eval = T}
 download.file("http://climexp.knmi.nl/data/pgdcnCA007025250.dat", "./data/montreal_P_ghcn.dat")
@@ -388,3 +428,51 @@ compare_NCEP_station <- rbind(dummy_1, dummy_2)
 
 plot_scalegram(compare_NCEP_station)
 ```
+
+*Exercise 6: Download other Earth system variables (see below) and perform cross-scale and cross-variable analyses with scalegram, e.g.:*
+
+* *cross-scale variability of a given variable derived from different datasets.*
+
+* *cross-scale hydroclimatic variability compared to vegetation response.*
+
+* *cross-scale temperature variability compared to tree-ring width chronologies.*
+
+Suggestions for some publicly available datasets
+---
+package [FedData](https://cran.r-project.org/web/packages/FedData/README.html), access to:
+
+1. The National Elevation Dataset (NED) digital elevation models (USGS)
+
+2. The National Hydrography Dataset (NHD) (USGS)
+
+3. The Soil Survey Geographic (SSURGO)
+
+4. The Global Historical Climatology Network (GHCN)
+
+5. The Daymet gridded estimates of daily weather parameters for North America
+
+6. The International Tree Ring Data Bank (ITRDB)
+
+7. The National Land Cover Database (NLCD) from 2011, 2006, and 2001
+
+---
+
+Remote sensing vegetation indices: [GIMMS NDVI3g](https://glam1.gsfc.nasa.gov/)
+
+```{r gimms, eval = F}
+require("gimms")
+gimms_files <- downloadGimms(x = as.Date("2000-01-01"), y = as.Date("2001-12-31"))
+site_coords <- data.frame(lat = 45.5, lon = 286.5) # C'est Montreal
+coordinates(site_coords) <- c("lon", "lat")
+gimms_raster <- rasterizeGimms(gimms_files)
+plot(gimms_raster[[1]])
+points(site_coords)
+ndvi3g <- t(extract(gimms_raster, site_coords))
+```
+
+---
+
+Eddy covariance data of CO2, water and energy exchange between the land surface and atmosphere:
+
+[FLUXNET2015](http://fluxnet.fluxdata.org/data/fluxnet2015-dataset/)
+

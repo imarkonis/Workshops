@@ -6,53 +6,67 @@ Basics of reproducible research
 ### Motivation
 -   Which is the [problem?](http://journals.plos.org/plosmedicine/article/file?id=10.1371/journal.pmed.0020124&type=printable)
 -   How [big is it?](http://www.nature.com/news/1-500-scientists-lift-the-lid-on-reproducibility-1.19970)
--   What is [reproducible research?](http://onlinelibrary.wiley.com/doi/10.1002/2016WR019285/abstract)
+-   What is [reproducible research?](https://agupubs.onlinelibrary.wiley.com/doi/10.1002/2015EA000136%4010.1002/%28ISSN%292333-5084.GPF1)
 -   What if research is [not reproducible?](https://retractionwatch.com/2013/02/01/seizure-study-retracted-after-authors-realize-data-got-terribly-mixed/)
+-   How R can improve [reproducibility?](https://agupubs.onlinelibrary.wiley.com/doi/10.1029/2012EO160003)
 
 ------------------------------------------------------------------------
 
 ### Main components of reproducible research
 
-- Data: Easily accessible in [open data repository](https://www.nature.com/sdata/policies/repositories) 
-or provide the data from [your own server](https://shiny.fzp.czu.cz/KVHEM/OWDA/).
-  - Raw data should be considered read-only and stored seperately.
-  - If possible, keep the names of local files downloaded from the internet or copied onto your computer unchanged.
-  - Exception: names should be as much as representative as possible.
-  - Us plain text as much as possible.
-  - Make data cleaning as easy and effective as possible; [tidy format](http://vita.had.co.nz/papers/tidy-data.pdf).
-  - Create a script that can automatically generate clean data from the raw data.
+####Data 
 
-- Methods: Use [efficient workflow](https://csgillespie.github.io/efficientR/preface.html), [robust directory layout](https://nicercode.github.io/blog/2013-04-05-projects/), [clean code](http://adv-r.had.co.nz/Style.html), and share it with a version control, collaborative platform, such as [github](https://github.com/KVHEM/drought_uncertainty).
-  - Use Readme files.
-  - Maintain a consistent folder structure across projects.
-  - Have a consistent coding style.
-  - Reduce copy-pasting code as much as possible.
-  - Break code into small, discrete pieces. Ideally, each script file should do one thing.
-  - Separate function definition and application
-  - Try not to save your R environments. Try not to load them either. 
-  - Organize and name files so that they make intuitive sense to your future self, and follow the narrative of the data analysis.
-  - Comment a lot, but avoid redundant comments by smart use of naming.
-  - Again, names should be as much as representative as possible.
+Easily accessible in [open data repository](https://www.nature.com/sdata/policies/repositories) 
+or provide the data from [your own server](https://shiny.fzp.czu.cz/KVHEM/OWDA/).
+
+  + Raw data should be considered read-only and stored seperately.
+  + If possible, keep the names of local files downloaded from the internet or copied onto your computer unchanged.
+  + Exception: names should be as much as representative as possible.
+  + Use plain text as much as possible.
+  + Make data cleaning as easy and effective as possible; [tidy format](http://vita.had.co.nz/papers/tidy-data.pdf).
+  + Create a script that can automatically generate clean data from the raw data.
+
+####Methods
+
+Use [efficient workflow](https://csgillespie.github.io/efficientR/preface.html), [robust directory layout](https://nicercode.github.io/blog/2013-04-05-projects/), [clean code](http://adv-r.had.co.nz/Style.html), and share it with a version control, collaborative platform, such as [github](https://github.com/KVHEM/drought_uncertainty).
+ 
+  + Use Readme files.
+  + Maintain a consistent folder structure across projects.
+  + Have a consistent coding style.
+  + Reduce copy-pasting code as much as possible.
+  + Break code into small, discrete pieces. Ideally, each script file should do one thing.
+  + Separate function definition and application
+  + Try not to save your R environments. Try not to load them either. 
+  + Organize and name files so that they make intuitive sense to your future self, and follow the narrative of the data analysis.
+  + Comment a lot, but avoid redundant comments by smart use of naming.
+  + Again, names should be as much as representative as possible.
   
-- Results: Share results in a dynamic way with [Markdown](http://daringfireball.net/projects/markdown/), [Shiny](https://shiny.rstudio.com/) or [Sharelatex](https://www.sharelatex.com/)/[Googledocs](https://www.google.ca/docs/about/).
-  - Results should be kept in a seperate folder. 
-  - Treat generated output as disposable
-  - Documentation is important, because  is the key to communicating your workflow and findings with your future self, collaborators, peers, and the general public.
-  - Guess what: names should be as much as representative as possible.
+####Results
+
+Share results in a dynamic way with [Markdown](http://daringfireball.net/projects/markdown/), [Shiny](https://shiny.rstudio.com/) or [Sharelatex](https://www.sharelatex.com/)/[Googledocs](https://www.google.ca/docs/about/).
+
+  + Results should be kept in a seperate folder. 
+  + Treat generated output as disposable
+  + Documentation is important, because  is the key to communicating your workflow and findings with your future self, collaborators, peers, and the general public.
+  + Guess what: names should be as much as representative as possible.
   
 > Remember that publishing is not the end of your research, but a way station towards your future analyses and the future analyses of others.
 
 To further enhance collaboration you can use [slack](https://www.nature.com/news/how-scientists-use-slack-1.21228).
 
 ### Pros and cons of the reproducible approach
+
 _Pros_
+
 - Dynamic
 - Collaborative
 - Archieving
+- Facilitates [peer review](https://ciencias.ulisboa.pt/sites/default/files/fcul/outros/A%20Letter%20from%20the%20Frustrated%20Author%20of%20a%20Journal%20paper.pdf)
 - Increase audience  
 
 _Cons_
-- Time consuming
+
+- Time consuming (at first place)
 - Needs training/coordination
 - Most of us are afraid of errors
 
@@ -83,7 +97,7 @@ R Markdown has some significant strengths:
 
 -   Supports many formats (HTML, PDF, Word), which..
 -   Helps us present/teach a specific method in R, which..
--   Allows collaborative science and coding (cloud-computing), and also..
+-   Allows collaborative science and coding (cloud-computing).
 
 ------------------------------------------------------------------------
 
