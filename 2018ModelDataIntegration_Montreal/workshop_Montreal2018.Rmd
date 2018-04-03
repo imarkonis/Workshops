@@ -437,9 +437,9 @@ plot_scalegram(compare_NCEP_station)
 
 * *cross-scale temperature variability compared to tree-ring width chronologies.*
 
-Suggestions for some publicly available datasets
----
-package [FedData](https://cran.r-project.org/web/packages/FedData/README.html), access to:
+####Suggestions for some publicly available datasets
+
+*Package [FedData](https://cran.r-project.org/web/packages/FedData/README.html), access to*:
 
 1. The National Elevation Dataset (NED) digital elevation models (USGS)
 
@@ -455,9 +455,7 @@ package [FedData](https://cran.r-project.org/web/packages/FedData/README.html), 
 
 7. The National Land Cover Database (NLCD) from 2011, 2006, and 2001
 
----
-
-Remote sensing vegetation indices: [GIMMS NDVI3g](https://glam1.gsfc.nasa.gov/)
+*Remote sensing vegetation indices: [GIMMS NDVI3g](https://glam1.gsfc.nasa.gov/)*
 
 ```{r gimms, eval = F}
 require("gimms")
@@ -470,9 +468,7 @@ points(site_coords)
 ndvi3g <- t(extract(gimms_raster, site_coords))
 ```
 
----
-
-Eddy covariance data of CO2, water and energy exchange between the land surface and atmosphere:
+*Eddy covariance data of CO2, water and energy exchange between the land surface and atmosphere:*
 
 [FLUXNET2015](http://fluxnet.fluxdata.org/data/fluxnet2015-dataset/)
 
