@@ -21,7 +21,7 @@ ui <- fluidPage(
               value = 66),
   sliderInput(inputId = "H",
               step = 0.01,
-              label = "Hurs coef.:",
+              label = "Hurst coef.:",
               min = 0,
               max = 1,
               value = 0.5),
